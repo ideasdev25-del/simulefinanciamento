@@ -4,6 +4,8 @@ import { calcSAC, calcPrice, fmt, fmtFull } from './utils/financing';
 import type { RowResult } from './utils/financing';
 import { Mail, X, Send, Loader2 } from 'lucide-react';
 import * as xlsx from 'xlsx';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -396,10 +398,166 @@ function EmailModal({ onClose, onSend }: { onClose: () => void; onSend: (email: 
   );
 }
 
-function AmortizationTable({ sac, price, params }: { sac: RowResult[], price: RowResult[], params: SimParams }) {
+function AmortizationTable({ sac, price, params, itbiPct, cartorioPct, taxaAvaliacao, primeiroImovel }: {
+  sac: RowResult[], price: RowResult[], params: SimParams,
+  itbiPct: number, cartorioPct: number, taxaAvaliacao: number, primeiroImovel: boolean
+}) {
   const [tab, setTab] = useState<'sac'|'price'>('sac');
   const [showModal, setShowModal] = useState(false);
   const rows = tab === 'sac' ? sac : price;
+
+  const buildPdfBase64 = (): string => {
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const W = doc.internal.pageSize.getWidth();
+    const pageH = doc.internal.pageSize.getHeight();
+
+    const realCartorioPct = primeiroImovel ? cartorioPct / 2 : cartorioPct;
+    const entradaValor = (params.valorImovel * params.entradaPct) / 100;
+    const pv = params.valorImovel - entradaValor;
+    const custoItbi = params.valorImovel * (itbiPct / 100);
+    const custoCartorio = params.valorImovel * (realCartorioPct / 100);
+    const totalTaxas = custoItbi + custoCartorio + taxaAvaliacao;
+    const capitalNecessario = entradaValor + totalTaxas;
+
+    const sacTotal = sac.reduce((s, r) => s + r.prestacao, 0);
+    const sacJuros = sac.reduce((s, r) => s + r.juros, 0);
+    const priceTotal = price.reduce((s, r) => s + r.prestacao, 0);
+    const priceJuros = price.reduce((s, r) => s + r.juros, 0);
+    const economiaSac = priceTotal - sacTotal;
+
+    const fmtR = (v: number) =>
+      v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0 });
+
+    // Header band
+    doc.setFillColor(13, 15, 20);
+    doc.rect(0, 0, W, 38, 'F');
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(200, 169, 110);
+    doc.text('CENÁRIO BRASIL · 2026', 20, 13);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.setTextColor(232, 228, 220);
+    doc.text('Simulação de Financiamento Imobiliário', 20, 24);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(122, 128, 153);
+    doc.text(
+      `Gerado em ${new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })} · simulefinanciamento.app`,
+      20, 33
+    );
+
+    let y = 50;
+
+    const section = (title: string) => {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9);
+      doc.setTextColor(200, 169, 110);
+      doc.text(title, 20, y);
+      doc.setDrawColor(200, 169, 110);
+      doc.setLineWidth(0.25);
+      doc.line(20, y + 2, W - 20, y + 2);
+      y += 9;
+    };
+
+    // ── Parâmetros ──
+    section('PARÂMETROS DA SIMULAÇÃO');
+    autoTable(doc, {
+      startY: y,
+      margin: { left: 20, right: 20 },
+      styles: { fontSize: 9, cellPadding: { top: 3, bottom: 3, left: 4, right: 4 } },
+      alternateRowStyles: { fillColor: [246, 246, 250] },
+      body: [
+        ['Valor do Imóvel', fmtR(params.valorImovel)],
+        [`Entrada (${params.entradaPct}%)`, fmtR(entradaValor)],
+        ['Valor Financiado', fmtR(pv)],
+        ['Taxa de Juros', `${params.taxa.toFixed(2).replace('.', ',')}% a.a.`],
+        ['Prazo', `${params.prazo} anos · ${params.prazo * 12} parcelas`],
+      ],
+      columnStyles: {
+        0: { textColor: [90, 90, 110], cellWidth: 90 },
+        1: { textColor: [20, 20, 40], fontStyle: 'bold', halign: 'right' },
+      },
+      theme: 'plain',
+    });
+    y = (doc as any).lastAutoTable.finalY + 14;
+
+    // ── Comparativo ──
+    section('COMPARATIVO SAC vs PRICE');
+    autoTable(doc, {
+      startY: y,
+      margin: { left: 20, right: 20 },
+      head: [['', 'SAC', 'Price (Francês)']],
+      styles: { fontSize: 9, cellPadding: { top: 3, bottom: 3, left: 4, right: 4 } },
+      headStyles: { fillColor: [30, 35, 50], textColor: [200, 169, 110], fontStyle: 'bold', halign: 'center', fontSize: 8 },
+      alternateRowStyles: { fillColor: [246, 246, 250] },
+      body: [
+        ['1ª Parcela', fmtR(sac[0]?.prestacao ?? 0), fmtR(price[0]?.prestacao ?? 0)],
+        ['Última Parcela', fmtR(sac[sac.length - 1]?.prestacao ?? 0), fmtR(price[price.length - 1]?.prestacao ?? 0) + ' (fixa)'],
+        ['Total Pago', fmtR(sacTotal), fmtR(priceTotal)],
+        ['Juros Totais', fmtR(sacJuros), fmtR(priceJuros)],
+        ['Economia no SAC', `${fmtR(economiaSac)} a menos`, '—'],
+      ],
+      columnStyles: {
+        0: { textColor: [90, 90, 110], cellWidth: 70 },
+        1: { halign: 'right', textColor: [10, 125, 111] },
+        2: { halign: 'right', textColor: [156, 56, 120] },
+      },
+      didParseCell: (data) => {
+        if (data.row.index === 4 && data.column.index !== 0) {
+          data.cell.styles.fontStyle = 'bold';
+        }
+      },
+      theme: 'plain',
+    });
+    y = (doc as any).lastAutoTable.finalY + 14;
+
+    // ── Custos de Formalização ──
+    section('CUSTOS DE FORMALIZAÇÃO');
+    autoTable(doc, {
+      startY: y,
+      margin: { left: 20, right: 20 },
+      styles: { fontSize: 9, cellPadding: { top: 3, bottom: 3, left: 4, right: 4 } },
+      alternateRowStyles: { fillColor: [246, 246, 250] },
+      body: [
+        [`ITBI (${itbiPct.toFixed(1)}%)`, fmtR(custoItbi)],
+        [`Cartório/RGI (${realCartorioPct.toFixed(2)}%${primeiroImovel ? ' — 50% desc. SFH' : ''})`, fmtR(custoCartorio)],
+        ['Taxa de Avaliação Bancária', fmtR(taxaAvaliacao)],
+        ['Total de Custos de Formalização', fmtR(totalTaxas)],
+        ['Capital Total Necessário (entrada + custos)', fmtR(capitalNecessario)],
+      ],
+      columnStyles: {
+        0: { textColor: [90, 90, 110], cellWidth: 120 },
+        1: { halign: 'right', textColor: [20, 20, 40], fontStyle: 'bold' },
+      },
+      didParseCell: (data) => {
+        if (data.row.index >= 3) {
+          data.cell.styles.fillColor = [245, 240, 228];
+          data.cell.styles.textColor = [140, 90, 30];
+          data.cell.styles.fontStyle = 'bold';
+        }
+      },
+      theme: 'plain',
+    });
+
+    // Footer band
+    doc.setFillColor(13, 15, 20);
+    doc.rect(0, pageH - 14, W, 14, 'F');
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(122, 128, 153);
+    doc.text(
+      'simulefinanciamento.app · Simulação para fins informativos. Consulte sua instituição financeira.',
+      W / 2, pageH - 5,
+      { align: 'center' }
+    );
+
+    const buffer = doc.output('arraybuffer');
+    const bytes = new Uint8Array(buffer);
+    let binary = '';
+    bytes.forEach(b => { binary += String.fromCharCode(b); });
+    return btoa(binary);
+  };
 
   const buildXlsxBase64 = (): string => {
     const entrada = (params.valorImovel * params.entradaPct) / 100;
@@ -447,12 +605,14 @@ function AmortizationTable({ sac, price, params }: { sac: RowResult[], price: Ro
 
   const handleSendEmail = async (email: string) => {
     const xlsxBase64 = buildXlsxBase64();
+    const pdfBase64 = buildPdfBase64();
     const res = await fetch('/api/send-email', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         email,
         xlsxBase64,
+        pdfBase64,
         params: { ...params, sistema: tab },
       }),
     });
@@ -731,7 +891,10 @@ export default function App() {
             primeiroImovel={primeiroImovel} setPrimeiroImovel={setPrimeiroImovel}
           />
           <SummaryCards sac={sac} price={price} />
-          <AmortizationTable sac={sac} price={price} params={params} />
+          <AmortizationTable sac={sac} price={price} params={params}
+            itbiPct={itbiPct} cartorioPct={cartorioPct}
+            taxaAvaliacao={taxaAvaliacao} primeiroImovel={primeiroImovel}
+          />
           <ChartsSection sac={sac} price={price} prazo={prazo} pv={pv} />
           <AdBanner slot="6666666666" format="auto" className="banner in-content-ad" />
           <Explainer />

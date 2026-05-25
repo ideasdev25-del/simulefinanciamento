@@ -6,6 +6,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 interface SendEmailBody {
   email: string;
   xlsxBase64: string;
+  pdfBase64?: string;
   params: {
     valorImovel: number;
     entradaPct: number;
@@ -20,7 +21,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { email, xlsxBase64, params } = req.body as SendEmailBody;
+  const { email, xlsxBase64, pdfBase64, params } = req.body as SendEmailBody;
 
   if (!email || !xlsxBase64) {
     return res.status(400).json({ error: 'Missing required fields' });
@@ -129,7 +130,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     `,
     attachments: [
       {
-        filename: `Simulacao_${params.sistema.toUpperCase()}_${params.prazo}anos.xlsx`,
+        filename: `Resumo_Simulacao_${params.sistema.toUpperCase()}.pdf`,
+        content: pdfBase64 ?? '',
+      },
+      {
+        filename: `Tabela_Amortizacao_${params.sistema.toUpperCase()}_${params.prazo}anos.xlsx`,
         content: xlsxBase64,
       },
     ],
