@@ -1,0 +1,700 @@
+import { useMemo, useEffect, useRef, useState } from 'react';
+import './index.css';
+import { calcSAC, calcPrice, fmt, fmtFull } from './utils/financing';
+import type { RowResult } from './utils/financing';
+import { Mail, X, Send, Loader2 } from 'lucide-react';
+import * as xlsx from 'xlsx';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+} from 'chart.js';
+import { Line } from 'react-chartjs-2';
+
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
+
+// --- Components ---
+
+function Header() {
+  return (
+    <header>
+      <h1>Simulador de<br /><em>Financiamento Imobiliário</em></h1>
+      <p className="subtitle">SAC vs Price · Amortização · Juros Totais · Parcelas mês a mês</p>
+    </header>
+  );
+}
+
+// AdSense banner — substitua os data-ad-* pelo seu slot real
+// Em localhost não renderiza para não criar espaços vazios
+function AdBanner({ slot, format = 'auto', className = 'banner' }: { slot: string; format?: string; className?: string }) {
+  useEffect(() => {
+    if (!import.meta.env.PROD) return;
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
+    } catch {
+      // AdSense not loaded
+    }
+  }, [slot]);
+
+  if (!import.meta.env.PROD) return null;
+
+  return (
+    <div className={`ads-container ${className}`} aria-label="Publicidade">
+      <ins
+        className="adsbygoogle"
+        style={{ display: 'block', width: '100%' }}
+        data-ad-client="ca-pub-XXXXXXXXXXXXXXXXX"
+        data-ad-slot={slot}
+        data-ad-format={format}
+        data-full-width-responsive="true"
+      />
+    </div>
+  );
+}
+
+function Controls({
+  valorImovel, setValorImovel,
+  entradaPct, setEntradaPct,
+  taxa, setTaxa,
+  prazo, setPrazo
+}: {
+  valorImovel: number, setValorImovel: (v: number) => void,
+  entradaPct: number, setEntradaPct: (v: number) => void,
+  taxa: number, setTaxa: (v: number) => void,
+  prazo: number, setPrazo: (v: number) => void
+}) {
+  const entradaValor = (valorImovel * entradaPct) / 100;
+  
+  return (
+    <div className="controls-grid">
+      <div className="field">
+        <label>Valor do Imóvel</label>
+        <input type="range" min="100000" max="3000000" step="25000" value={valorImovel} onChange={e => setValorImovel(+e.target.value)} />
+        <div className="range-val">{fmt(valorImovel)}</div>
+      </div>
+      <div className="field">
+        <label>Entrada (%)</label>
+        <input type="range" min="10" max="50" step="5" value={entradaPct} onChange={e => setEntradaPct(+e.target.value)} />
+        <div className="range-val">{entradaPct}% <small>= {fmt(entradaValor)}</small></div>
+      </div>
+      <div className="field">
+        <label>Taxa de Juros (% a.a.)</label>
+        <input type="range" min="7" max="16" step="0.25" value={taxa} onChange={e => setTaxa(+e.target.value)} />
+        <div className="range-val">{taxa.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}% <small>a.a.</small></div>
+      </div>
+      <div className="field">
+        <label>Prazo (anos)</label>
+        <input type="range" min="5" max="35" step="1" value={prazo} onChange={e => setPrazo(+e.target.value)} />
+        <div className="range-val">{prazo} <small>anos · {prazo * 12} parcelas</small></div>
+      </div>
+    </div>
+  );
+}
+
+function FormalizationCosts({
+  valorImovel, entradaValor,
+  itbiPct, setItbiPct,
+  cartorioPct, setCartorioPct,
+  taxaAvaliacao, setTaxaAvaliacao,
+  primeiroImovel, setPrimeiroImovel
+}: {
+  valorImovel: number, entradaValor: number,
+  itbiPct: number, setItbiPct: (v: number) => void,
+  cartorioPct: number, setCartorioPct: (v: number) => void,
+  taxaAvaliacao: number, setTaxaAvaliacao: (v: number) => void,
+  primeiroImovel: boolean, setPrimeiroImovel: (v: boolean) => void
+}) {
+  // If "Primeiro Imóvel" via SFH, roughly 50% discount on Cartório fees
+  const realCartorioPct = primeiroImovel ? cartorioPct / 2 : cartorioPct;
+  
+  const custoItbi = valorImovel * (itbiPct / 100);
+  const custoCartorio = valorImovel * (realCartorioPct / 100);
+  const totalTaxas = custoItbi + custoCartorio + taxaAvaliacao;
+  const capitalNecessario = entradaValor + totalTaxas;
+
+  return (
+    <div className="formalization-costs">
+      <div className="section-title">Custos de Formalização (Estimativa)</div>
+      <div className="section-desc">Despesas extras obrigatórias como ITBI e encargos do cartório.</div>
+      
+      <div className="costs-grid">
+        <div className="costs-inputs">
+          <div className="field">
+            <label>ITBI (%) <span className="label-hint">padrão 2% a 3%</span></label>
+            <input type="range" min="0" max="5" step="0.1" value={itbiPct} onChange={e => setItbiPct(+e.target.value)} />
+            <div className="range-val">{itbiPct.toFixed(1)}% <small>= {fmt(custoItbi)}</small></div>
+          </div>
+          <div className="field">
+            <label>Cartório (RGI) (%) <span className="label-hint">padrão 1% a 2%</span></label>
+            <input type="range" min="0" max="3" step="0.1" value={cartorioPct} onChange={e => setCartorioPct(+e.target.value)} />
+            <div className="range-val">{cartorioPct.toFixed(1)}% {primeiroImovel && <small className="discount">-50%</small>} <small>= {fmt(custoCartorio)}</small></div>
+          </div>
+          <div className="field">
+            <label>Taxa de Avaliação Bancária</label>
+            <input type="range" min="0" max="5000" step="100" value={taxaAvaliacao} onChange={e => setTaxaAvaliacao(+e.target.value)} />
+            <div className="range-val">{fmt(taxaAvaliacao)}</div>
+          </div>
+          <label className="checkbox-field">
+            <input type="checkbox" checked={primeiroImovel} onChange={e => setPrimeiroImovel(e.target.checked)} />
+            <span>Primeiro imóvel (Desconto no Cartório via SFH)</span>
+          </label>
+        </div>
+
+        <div className="costs-summary">
+          <div className="summary-item">
+            <span>Entrada do Financiamento</span>
+            <strong>{fmt(entradaValor)}</strong>
+          </div>
+          <div className="summary-item">
+            <span>Total de Taxas Extras</span>
+            <strong>{fmt(totalTaxas)}</strong>
+          </div>
+          <div className="summary-total">
+            <span>Capital Total Inicial</span>
+            <strong>{fmt(capitalNecessario)}</strong>
+          </div>
+          <p className="disclaimer">* Valores estimados. As alíquotas de ITBI e emolumentos de cartório variam por município e estado. Consulte um correspondente bancário da sua região.</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SummaryCards({ sac, price }: { sac: RowResult[], price: RowResult[] }) {
+  const sacTotal = sac.reduce((s, r) => s + r.prestacao, 0);
+  const sacJuros = sac.reduce((s, r) => s + r.juros, 0);
+  const priceTotal = price.reduce((s, r) => s + r.prestacao, 0);
+  const priceJuros = price.reduce((s, r) => s + r.juros, 0);
+
+  const economiaSac = priceTotal - sacTotal;
+  const difPrice = ((priceTotal / sacTotal - 1) * 100).toFixed(1);
+
+  return (
+    <div className="summary-row">
+      <div className="summary-card sac">
+        <div className="card-label">Sistema</div>
+        <div className="card-system">SAC</div>
+        <div className="card-metrics">
+          <div className="metric">
+            <div className="metric-name">1ª Parcela</div>
+            <div className="metric-val big">{fmtFull(sac[0].prestacao)}</div>
+          </div>
+          <div className="metric">
+            <div className="metric-name">Última Parcela</div>
+            <div className="metric-val">{fmtFull(sac[sac.length - 1].prestacao)}</div>
+          </div>
+          <div className="metric">
+            <div className="metric-name">Total pago</div>
+            <div className="metric-val">{fmt(sacTotal)}</div>
+          </div>
+          <div className="metric">
+            <div className="metric-name">Juros totais</div>
+            <div className="metric-val">{fmt(sacJuros)}</div>
+          </div>
+        </div>
+        <div className="diff-badge">Economia de {fmt(economiaSac)} vs Price</div>
+      </div>
+
+      <div className="summary-card price">
+        <div className="card-label">Sistema</div>
+        <div className="card-system">Price (Francês)</div>
+        <div className="card-metrics">
+          <div className="metric">
+            <div className="metric-name">Parcela fixa</div>
+            <div className="metric-val big">{fmtFull(price[0].prestacao)}</div>
+          </div>
+          <div className="metric">
+            <div className="metric-name">Parcela inicial</div>
+            <div className="metric-val">{fmtFull(price[0].prestacao)}</div>
+          </div>
+          <div className="metric">
+            <div className="metric-name">Total pago</div>
+            <div className="metric-val">{fmt(priceTotal)}</div>
+          </div>
+          <div className="metric">
+            <div className="metric-name">Juros totais</div>
+            <div className="metric-val">{fmt(priceJuros)}</div>
+          </div>
+        </div>
+        <div className="diff-badge">{difPrice}% mais caro que SAC</div>
+      </div>
+    </div>
+  );
+}
+
+function ChartsSection({ sac, price, prazo, pv }: { sac: RowResult[], price: RowResult[], prazo: number, pv: number }) {
+  const n = prazo * 12;
+  const step = Math.max(1, Math.floor(n / 120));
+  
+  const labels: string[] = [];
+  const sacParc: number[] = []; const priceParc: number[] = [];
+  const sacSaldo: number[] = []; const priceSaldo: number[] = [];
+  
+  for (let i = 0; i < n; i += step) {
+    labels.push(`${Math.round((i + 1) / 12)}a`);
+    sacParc.push(sac[i].prestacao);
+    priceParc.push(price[i].prestacao);
+    sacSaldo.push(sac[i].saldo);
+    priceSaldo.push(price[i].saldo);
+  }
+
+  const tickFmt = (v: number) => 'R$' + (v >= 1000000 ? (v / 1000000).toFixed(1) + 'M' : (v / 1000).toFixed(0) + 'k');
+  const tooltipLabel = (ctx: { dataset: { label: string }, raw: unknown }) => ` ${ctx.dataset.label}: ${fmtFull(ctx.raw as number)}`;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const baseOptions: Record<string, any> = {
+    responsive: true,
+    maintainAspectRatio: false, // let the CSS wrapper control height
+    animation: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#1a1e2a', borderColor: '#252a38', borderWidth: 1,
+        titleColor: '#7a8099', bodyColor: '#e8e4dc',
+        titleFont: { family: 'DM Mono', size: 11 }, bodyFont: { family: 'DM Mono', size: 12 },
+        callbacks: { label: tooltipLabel }
+      }
+    },
+    scales: {
+      x: { grid: { color: '#252a38' }, ticks: { color: '#7a8099', font: { family: 'DM Mono', size: 10 } } },
+      y: { 
+        grid: { color: '#252a38' },
+        ticks: { color: '#7a8099', font: { family: 'DM Mono', size: 10 }, callback: tickFmt }
+      }
+    }
+  };
+
+  // Saldo devedor: Y max locked to loan amount (pv)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const saldoOptions: Record<string, any> = {
+    ...baseOptions,
+    scales: {
+      ...baseOptions.scales,
+      y: {
+        ...baseOptions.scales.y,
+        min: 0,
+        max: pv,
+        ticks: { color: '#7a8099', font: { family: 'DM Mono', size: 10 }, callback: tickFmt }
+      }
+    }
+  };
+
+  const dataParcelas = {
+    labels,
+    datasets: [
+      { label: 'SAC', data: sacParc, borderColor: '#6edac8', backgroundColor: '#6edac818', borderWidth: 2, pointRadius: 0, fill: true, tension: 0.3 },
+      { label: 'Price', data: priceParc, borderColor: '#d47eb8', backgroundColor: '#d47eb818', borderWidth: 2, pointRadius: 0, fill: true, tension: 0.3 }
+    ]
+  };
+
+  const dataSaldo = {
+    labels,
+    datasets: [
+      { label: 'SAC', data: sacSaldo, borderColor: '#6edac8', backgroundColor: '#6edac818', borderWidth: 2, pointRadius: 0, fill: true, tension: 0.3 },
+      { label: 'Price', data: priceSaldo, borderColor: '#d47eb8', backgroundColor: '#d47eb818', borderWidth: 2, pointRadius: 0, fill: true, tension: 0.3 }
+    ]
+  };
+
+  return (
+    <div className="charts-row">
+      <div className="chart-section">
+        <div className="section-title">Evolução das Parcelas</div>
+        <div className="section-desc">Prestação mês a mês</div>
+        <div className="chart-wrap">
+          <Line data={dataParcelas} options={baseOptions} />
+        </div>
+        <div className="legend">
+          <div className="legend-item"><div className="legend-dot" style={{ background: 'var(--sac)' }}></div>SAC</div>
+          <div className="legend-item"><div className="legend-dot" style={{ background: 'var(--price)' }}></div>Price</div>
+        </div>
+      </div>
+      <div className="chart-section">
+        <div className="section-title">Saldo Devedor</div>
+        <div className="section-desc">Máximo = valor financiado</div>
+        <div className="chart-wrap">
+          <Line data={dataSaldo} options={saldoOptions} />
+        </div>
+        <div className="legend">
+          <div className="legend-item"><div className="legend-dot" style={{ background: 'var(--sac)' }}></div>SAC</div>
+          <div className="legend-item"><div className="legend-dot" style={{ background: 'var(--price)' }}></div>Price</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+type SimParams = {
+  valorImovel: number;
+  entradaPct: number;
+  taxa: number;
+  prazo: number;
+};
+
+function EmailModal({ onClose, onSend }: { onClose: () => void; onSend: (email: string) => Promise<void> }) {
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    setStatus('loading');
+    try {
+      await onSend(email);
+      setStatus('success');
+    } catch {
+      setStatus('error');
+    }
+  };
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-box" onClick={e => e.stopPropagation()}>
+        <button className="modal-close" onClick={onClose}><X size={18} /></button>
+        
+        {status === 'success' ? (
+          <div className="modal-success">
+            <div className="modal-success-icon">✉️</div>
+            <h3>Email enviado!</h3>
+            <p>Sua simulação foi enviada para <strong>{email}</strong>.<br />Verifique sua caixa de entrada.</p>
+            <button className="btn-modal-primary" onClick={onClose}>Fechar</button>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit}>
+            <div className="modal-icon"><Mail size={28} /></div>
+            <h3>Receber simulação por email</h3>
+            <p>Enviaremos a tabela de amortização completa em Excel para o seu email.</p>
+            <div className="modal-field">
+              <label htmlFor="email-input">Seu email</label>
+              <input
+                id="email-input"
+                ref={inputRef}
+                type="email"
+                placeholder="seu@email.com"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                required
+                autoFocus
+              />
+            </div>
+            {status === 'error' && (
+              <p className="modal-error">Erro ao enviar. Tente novamente.</p>
+            )}
+            <button className="btn-modal-primary" type="submit" disabled={status === 'loading'}>
+              {status === 'loading'
+                ? <><Loader2 size={16} className="spin" /> Enviando...</>
+                : <><Send size={16} /> Enviar simulação</>}
+            </button>
+          </form>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function AmortizationTable({ sac, price, params }: { sac: RowResult[], price: RowResult[], params: SimParams }) {
+  const [tab, setTab] = useState<'sac'|'price'>('sac');
+  const [showModal, setShowModal] = useState(false);
+  const rows = tab === 'sac' ? sac : price;
+
+  const buildXlsxBase64 = (): string => {
+    const entrada = (params.valorImovel * params.entradaPct) / 100;
+    const valorFinanciado = params.valorImovel - entrada;
+
+    // Sheet 1: Parâmetros
+    const wsParams = xlsx.utils.aoa_to_sheet([
+      ['Parâmetro', 'Valor'],
+      ['Valor do Imóvel', params.valorImovel],
+      ['Entrada (%)', `${params.entradaPct}%`],
+      ['Valor da Entrada', entrada],
+      ['Valor Financiado', valorFinanciado],
+      ['Taxa de Juros (a.a.)', `${params.taxa.toFixed(2).replace('.', ',')}%`],
+      ['Prazo', `${params.prazo} anos (${params.prazo * 12} parcelas)`],
+      ['Sistema', tab === 'sac' ? 'SAC — Sistema de Amortização Constante' : 'Price (Tabela Francesa)'],
+      ['Data da simulação', new Date().toLocaleDateString('pt-BR')],
+    ]);
+
+    // Column widths
+    wsParams['!cols'] = [{ wch: 28 }, { wch: 36 }];
+
+    // Currency format for numeric rows (indices 1, 2, 3)
+    const currencyFmt = 'R$ #,##0.00';
+    ['B2', 'B4', 'B5'].forEach(cell => {
+      if (wsParams[cell]) wsParams[cell].z = currencyFmt;
+    });
+
+    // Sheet 2: Amortização
+    const wsData = rows.map(r => ({
+      'Mês': r.mes,
+      'Amortização (R$)': Number(r.amort.toFixed(2)),
+      'Juros (R$)': Number(r.juros.toFixed(2)),
+      'Prestação (R$)': Number(r.prestacao.toFixed(2)),
+      'Saldo Devedor (R$)': Number(Math.max(0, r.saldo).toFixed(2)),
+    }));
+    const wsAmort = xlsx.utils.json_to_sheet(wsData);
+    wsAmort['!cols'] = [{ wch: 8 }, { wch: 20 }, { wch: 18 }, { wch: 18 }, { wch: 20 }];
+
+    const wb = xlsx.utils.book_new();
+    xlsx.utils.book_append_sheet(wb, wsParams, 'Parâmetros');
+    xlsx.utils.book_append_sheet(wb, wsAmort, `Amortização_${tab.toUpperCase()}`);
+
+    return xlsx.write(wb, { type: 'base64', bookType: 'xlsx' }) as string;
+  };
+
+  const handleSendEmail = async (email: string) => {
+    const xlsxBase64 = buildXlsxBase64();
+    const res = await fetch('/api/send-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email,
+        xlsxBase64,
+        params: { ...params, sistema: tab },
+      }),
+    });
+    if (!res.ok) throw new Error('send failed');
+  };
+
+  return (
+    <>
+      {showModal && <EmailModal onClose={() => setShowModal(false)} onSend={handleSendEmail} />}
+      <div className="table-section">
+        <div className="section-title">Tabela de Amortização</div>
+        <div className="section-desc">Detalhamento mês a mês · A simulação completa será enviada ao seu email em Excel</div>
+        
+        <div className="table-header-row">
+          <div className="tab-bar">
+            <button className={`tab-btn sac ${tab === 'sac' ? 'active' : ''}`} onClick={() => setTab('sac')}>SAC</button>
+            <button className={`tab-btn price ${tab === 'price' ? 'active' : ''}`} onClick={() => setTab('price')}>Price</button>
+          </div>
+          <button className="btn-export" onClick={() => setShowModal(true)}>
+            <Mail size={16} /> Receber simulação por email
+          </button>
+        </div>
+
+      <div className="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Mês</th>
+              <th>Amortização</th>
+              <th>Juros</th>
+              <th>Prestação</th>
+              <th>Saldo Devedor</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.filter((_, i) => i % 3 === 0).map((r, i) => (
+              <tr key={r.mes} className={(i * 3 + 1) % 12 === 1 ? 'year-marker' : ''}>
+                <td>{r.mes}</td>
+                <td className="td-amort">{fmtFull(r.amort)}</td>
+                <td className="td-juros">{fmtFull(r.juros)}</td>
+                <td className="td-prestacao">{fmtFull(r.prestacao)}</td>
+                <td className="td-saldo">{fmtFull(Math.max(0, r.saldo))}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      </div>
+    </>
+  );
+}
+
+function Explainer() {
+  return (
+    <section aria-labelledby="sistemas-heading">
+      <h2 id="sistemas-heading" className="section-title" style={{ marginBottom: '6px' }}>Entenda os Sistemas de Amortização</h2>
+      <p className="section-desc" style={{ marginBottom: '20px' }}>SAC e Price são os dois sistemas utilizados no Brasil — cada um com vantagens diferentes dependendo do seu perfil financeiro.</p>
+      <div className="explainer-grid">
+        <div className="explainer-card sac">
+          <h3>SAC — Sistema de Amortização Constante</h3>
+          <p>A parcela de amortização do principal é sempre igual durante todo o contrato. Os juros incidem sobre o saldo devedor, que cai linearmente — por isso as prestações começam maiores e diminuem com o tempo.</p>
+          <p><strong>Fórmula:</strong> Amortização = Saldo ÷ n &nbsp;&middot;&nbsp; Juros = Saldo × taxa mensal</p>
+          <div className="pro-con">
+            <div className="pro-con-item"><span>✅</span><span>Paga menos juros totais</span></div>
+            <div className="pro-con-item"><span>✅</span><span>Saldo devedor cai mais rápido</span></div>
+            <div className="pro-con-item"><span>✅</span><span>Melhor para quitar antecipado</span></div>
+            <div className="pro-con-item"><span>⚠️</span><span>Parcela inicial mais alta (compromete mais renda)</span></div>
+          </div>
+        </div>
+        <div className="explainer-card price">
+          <h3>Price — Tabela Francesa</h3>
+          <p>A parcela total é fixa durante todo o contrato. No início, a maior parte é juros; com o tempo, a amortização vai crescendo. O saldo devedor cai lentamente no início.</p>
+          <p><strong>Fórmula:</strong> PMT = PV &times; [i(1+i)ⁿ] ÷ [(1+i)ⁿ−1]</p>
+          <div className="pro-con">
+            <div className="pro-con-item"><span>✅</span><span>Parcela previsível e fixa — fácil de planejar</span></div>
+            <div className="pro-con-item"><span>✅</span><span>Parcela inicial menor (facilita aprovação)</span></div>
+            <div className="pro-con-item"><span>✅</span><span>Orçamento familiar mais estável</span></div>
+            <div className="pro-con-item"><span>⚠️</span><span>Paga mais juros no total e amortiza pouco no início</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function FAQ() {
+  const faqs = [
+    {
+      q: 'Qual a diferença entre SAC e Price no financiamento imobiliário?',
+      a: 'No SAC, a amortização mensal é constante e as parcelas decrescem ao longo do tempo. Na Tabela Price, a parcela é fixa, mas no início a maior parte é composta por juros. O SAC resulta em menor custo total; o Price facilita o planejamento por ter parcela fixa.',
+    },
+    {
+      q: 'Qual sistema de amortização é melhor: SAC ou Price?',
+      a: 'O SAC é melhor para quem pode pagar parcela inicial mais alta e quer economizar juros no longo prazo. O Price é indicado para quem precisa de parcela menor no início ou prefere previsibilidade. Nosso simulador mostra exatamente quanto você economiza escolhendo o SAC.',
+    },
+    {
+      q: 'Como calcular o financiamento imobiliário no Brasil em 2026?',
+      a: 'Você precisa de: valor do imóvel, percentual de entrada (mínimo 10–20%), taxa de juros anual e prazo. Nosso simulador faz o cálculo automaticamente para SAC e Price, exibindo parcelas, juros totais e tabela de amortização completa.',
+    },
+    {
+      q: 'Quanto devo dar de entrada num financiamento imobiliário?',
+      a: 'O mínimo geralmente é de 20% para financiamento pelo SFH. Quanto maior a entrada, menor o saldo financiado, menores as parcelas e menos juros pagos no total. Use o slider de entrada no simulador para comparar cenários.',
+    },
+    {
+      q: 'Quais os custos extras além da entrada (ITBI, Cartório, etc)?',
+      a: 'Além da entrada, reserve os chamados Custos de Formalização (de 4% a 6% do valor do imóvel). Isso inclui o ITBI (Imposto de Transmissão, em média 2% a 3% cobrado pela prefeitura), a taxa de registro no Cartório (RGI, padrão de 1% a 2%) e a Taxa de Avaliação Bancária. Atenção: Se for a compra do seu primeiro imóvel financiado pelo SFH/MCMV, a lei federal concede 50% de desconto nas taxas de registro de cartório!',
+    },
+  ];
+
+  const [open, setOpen] = useState<number | null>(null);
+
+  return (
+    <section className="faq-section" aria-labelledby="faq-heading">
+      <h2 id="faq-heading" className="section-title" style={{ marginBottom: '6px' }}>Perguntas Frequentes</h2>
+      <p className="section-desc" style={{ marginBottom: '20px' }}>Dúvidas comuns sobre financiamento imobiliário no Brasil</p>
+      <div className="faq-list">
+        {faqs.map((faq, i) => (
+          <div key={i} className="faq-item">
+            <button
+              className="faq-question"
+              aria-expanded={open === i}
+              onClick={() => setOpen(open === i ? null : i)}
+            >
+              <span>{faq.q}</span>
+              <span className={`faq-chevron ${open === i ? 'open' : ''}`}>›</span>
+            </button>
+            {open === i && (
+              <div className="faq-answer" role="region">
+                <p>{faq.a}</p>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function DisclaimerBanner() {
+  return (
+    <div className="disclaimer-banner">
+      <span className="disclaimer-icon">ⓘ</span>
+      Os valores apresentados são estimativas para fins de planejamento. Consulte sua instituição financeira para condições definitivas.
+    </div>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="site-footer">
+      <p>
+        <strong>Simule Financiamento</strong> &nbsp;&middot;&nbsp;
+        Simulador gratuito de financiamento imobiliário &nbsp;&middot;&nbsp;
+        SAC e Price &nbsp;&middot;&nbsp;
+        Brasil 2026
+      </p>
+    </footer>
+  );
+}
+
+function Sidebar({ slots }: { slots: [string, string] }) {
+  if (!import.meta.env.PROD) return null;
+  return (
+    <aside className="sidebar">
+      <AdBanner slot={slots[0]} format="vertical" className="sidebar-ad" />
+      <AdBanner slot={slots[1]} format="vertical" className="sidebar-ad" />
+    </aside>
+  );
+}
+
+// Mobile sticky footer ad
+function MobileStickyAd({ slot }: { slot: string }) {
+  if (!import.meta.env.PROD) return null;
+  return (
+    <div className="mobile-sticky-ad">
+      <AdBanner slot={slot} format="auto" className="banner" />
+    </div>
+  );
+}
+
+// --- Main application ---
+
+export default function App() {
+  const [valorImovel, setValorImovel] = useState(500000);
+  const [entradaPct, setEntradaPct] = useState(20);
+  const [taxa, setTaxa] = useState(10.5);
+  const [prazo, setPrazo] = useState(30);
+
+  // Custos Extras state
+  const [itbiPct, setItbiPct] = useState(3.0);
+  const [cartorioPct, setCartorioPct] = useState(1.5);
+  const [taxaAvaliacao, setTaxaAvaliacao] = useState(3500);
+  const [primeiroImovel, setPrimeiroImovel] = useState(true);
+
+  const { sac, price, pv, entradaValor } = useMemo(() => {
+    const entradaValor = (valorImovel * entradaPct) / 100;
+    const pv = valorImovel - entradaValor;
+    const n = prazo * 12;
+    return {
+      pv,
+      entradaValor,
+      sac: calcSAC(pv, taxa, n),
+      price: calcPrice(pv, taxa, n)
+    };
+  }, [valorImovel, entradaPct, taxa, prazo]);
+
+  const params: SimParams = { valorImovel, entradaPct, taxa, prazo };
+
+  return (
+    <div className="container">
+      <Header />
+      <DisclaimerBanner />
+      <div className="page-layout">
+        <Sidebar slots={['1111111111', '2222222222']} />
+        <main className="main-content">
+          <Controls 
+            valorImovel={valorImovel} setValorImovel={setValorImovel}
+            entradaPct={entradaPct} setEntradaPct={setEntradaPct}
+            taxa={taxa} setTaxa={setTaxa}
+            prazo={prazo} setPrazo={setPrazo}
+          />
+          <FormalizationCosts
+            valorImovel={valorImovel} entradaValor={entradaValor}
+            itbiPct={itbiPct} setItbiPct={setItbiPct}
+            cartorioPct={cartorioPct} setCartorioPct={setCartorioPct}
+            taxaAvaliacao={taxaAvaliacao} setTaxaAvaliacao={setTaxaAvaliacao}
+            primeiroImovel={primeiroImovel} setPrimeiroImovel={setPrimeiroImovel}
+          />
+          <SummaryCards sac={sac} price={price} />
+          <AmortizationTable sac={sac} price={price} params={params} />
+          <ChartsSection sac={sac} price={price} prazo={prazo} pv={pv} />
+          <Explainer />
+          <FAQ />
+          <Footer />
+        </main>
+        <Sidebar slots={['3333333333', '4444444444']} />
+      </div>
+      <MobileStickyAd slot="5555555555" />
+    </div>
+  );
+}
