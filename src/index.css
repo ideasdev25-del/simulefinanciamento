@@ -283,18 +283,10 @@ input[type=range]::-moz-range-thumb {
   border-radius: 16px;
   padding: 24px;
   position: relative;
-  overflow: hidden;
 }
 
-.summary-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 3px;
-}
-
-.summary-card.sac::before { background: var(--sac); }
-.summary-card.price::before { background: var(--price); }
+.summary-card.sac  { border-top: 3px solid var(--sac); }
+.summary-card.price { border-top: 3px solid var(--price); }
 
 .card-label {
   font-family: 'DM Mono', monospace;
@@ -323,7 +315,7 @@ input[type=range]::-moz-range-thumb {
 .card-system[data-tip]::after {
   content: attr(data-tip);
   position: absolute;
-  bottom: calc(100% + 10px);
+  top: calc(100% + 10px);
   left: 0;
   background: var(--surface2);
   border: 1px solid var(--border);

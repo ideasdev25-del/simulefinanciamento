@@ -211,10 +211,6 @@ function SummaryCards({ sac, price }: { sac: RowResult[], price: RowResult[] }) 
             <div className="metric-val big">{fmtFull(price[0].prestacao)}</div>
           </div>
           <div className="metric">
-            <div className="metric-name">Última Parcela</div>
-            <div className="metric-val">{fmtFull(price[price.length - 1].prestacao)}</div>
-          </div>
-          <div className="metric">
             <div className="metric-name">Total pago</div>
             <div className="metric-val">{fmt(priceTotal)}</div>
           </div>
