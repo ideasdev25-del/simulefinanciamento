@@ -682,16 +682,6 @@ function Sidebar({ slots }: { slots: [string, string] }) {
   );
 }
 
-// Mobile sticky footer ad
-function MobileStickyAd({ slot }: { slot: string }) {
-  if (!import.meta.env.PROD) return null;
-  return (
-    <div className="mobile-sticky-ad">
-      <AdBanner slot={slot} format="auto" className="banner" />
-    </div>
-  );
-}
-
 // --- Main application ---
 
 export default function App() {
@@ -743,6 +733,7 @@ export default function App() {
           <SummaryCards sac={sac} price={price} />
           <AmortizationTable sac={sac} price={price} params={params} />
           <ChartsSection sac={sac} price={price} prazo={prazo} pv={pv} />
+          <AdBanner slot="6666666666" format="auto" className="banner in-content-ad" />
           <Explainer />
           <FAQ />
           <ContentSection />
@@ -750,7 +741,6 @@ export default function App() {
         </main>
         <Sidebar slots={['3333333333', '4444444444']} />
       </div>
-      <MobileStickyAd slot="5555555555" />
     </div>
   );
 }

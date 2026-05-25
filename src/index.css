@@ -655,20 +655,12 @@ td:first-child {
 .sidebar-ad { min-height: 300px; }
 .ads-container.banner { min-height: 90px; }
 .ads-container.rectangle { min-height: 250px; }
-
-/* Sticky footer ad (hidden on desktop) */
-.mobile-sticky-ad {
-  display: none;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  z-index: 50;
-  background: var(--bg-card); /* Add a backdrop so content doesn't bleed through */
-  border-top: 1px solid var(--border);
-  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
-  padding: 8px 0;
+.ads-container.in-content-ad {
+  margin: 24px 0;
+  min-height: 90px;
+  border-radius: 8px;
 }
+
 
 /* ── Responsive ── */
 @media (max-width: 1200px) {
@@ -681,18 +673,6 @@ td:first-child {
   }
   .sidebar { display: none; }
   
-  /* Show sticky ad when sidebar is hidden */
-  .mobile-sticky-ad {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    /* Ensure banner fits within mobile */
-    min-height: 60px;
-  }
-  
-  .container {
-    padding-bottom: 120px; /* Add extra room for sticky ad */
-  }
 }
 
 @media (max-width: 640px) {
