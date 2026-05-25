@@ -32,11 +32,11 @@ function Header() {
   );
 }
 
-// AdSense banner — substitua os data-ad-* pelo seu slot real
-// Em localhost não renderiza para não criar espaços vazios
+const PUB_ID = import.meta.env.VITE_ADSENSE_PUBLISHER_ID as string | undefined;
+
 function AdBanner({ slot, format = 'auto', className = 'banner' }: { slot: string; format?: string; className?: string }) {
   useEffect(() => {
-    if (!import.meta.env.PROD) return;
+    if (!import.meta.env.PROD || !PUB_ID) return;
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
@@ -45,14 +45,14 @@ function AdBanner({ slot, format = 'auto', className = 'banner' }: { slot: strin
     }
   }, [slot]);
 
-  if (!import.meta.env.PROD) return null;
+  if (!import.meta.env.PROD || !PUB_ID) return null;
 
   return (
     <div className={`ads-container ${className}`} aria-label="Publicidade">
       <ins
         className="adsbygoogle"
         style={{ display: 'block', width: '100%' }}
-        data-ad-client="ca-pub-XXXXXXXXXXXXXXXXX"
+        data-ad-client={PUB_ID}
         data-ad-slot={slot}
         data-ad-format={format}
         data-full-width-responsive="true"
@@ -832,8 +832,11 @@ function Footer() {
   );
 }
 
+const ADSENSE_READY = !import.meta.env.VITE_ADSENSE_PUBLISHER_ID?.includes('XXXXXXXXX')
+  && !!import.meta.env.VITE_ADSENSE_PUBLISHER_ID;
+
 function Sidebar({ slots }: { slots: [string, string] }) {
-  if (!import.meta.env.PROD) return null;
+  if (!import.meta.env.PROD || !ADSENSE_READY) return null;
   return (
     <aside className="sidebar">
       <AdBanner slot={slots[0]} format="vertical" className="sidebar-ad" />
