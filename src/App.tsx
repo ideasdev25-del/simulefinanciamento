@@ -180,7 +180,7 @@ function SummaryCards({ sac, price }: { sac: RowResult[], price: RowResult[] }) 
     <div className="summary-row">
       <div className="summary-card sac">
         <div className="card-label">Sistema</div>
-        <div className="card-system">SAC</div>
+        <div className="card-system" data-tip="Sistema de Amortização Constante: parcela decresce ao longo do tempo. Amortização fixa, juros caem mês a mês.">SAC</div>
         <div className="card-metrics">
           <div className="metric">
             <div className="metric-name">1ª Parcela</div>
@@ -204,15 +204,15 @@ function SummaryCards({ sac, price }: { sac: RowResult[], price: RowResult[] }) 
 
       <div className="summary-card price">
         <div className="card-label">Sistema</div>
-        <div className="card-system">Price (Francês)</div>
+        <div className="card-system" data-tip="Tabela Francesa: parcela fixa durante todo o contrato. No início paga-se mais juros; a amortização cresce com o tempo.">Price (Francês)</div>
         <div className="card-metrics">
           <div className="metric">
             <div className="metric-name">Parcela fixa</div>
             <div className="metric-val big">{fmtFull(price[0].prestacao)}</div>
           </div>
           <div className="metric">
-            <div className="metric-name">Parcela inicial</div>
-            <div className="metric-val">{fmtFull(price[0].prestacao)}</div>
+            <div className="metric-name">Última Parcela</div>
+            <div className="metric-val">{fmtFull(price[price.length - 1].prestacao)}</div>
           </div>
           <div className="metric">
             <div className="metric-name">Total pago</div>

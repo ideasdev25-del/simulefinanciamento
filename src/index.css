@@ -12,6 +12,7 @@
   --text: #e8e4dc;
   --muted: #7a8099;
   --danger: #e07070;
+  color-scheme: dark;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -65,6 +66,7 @@ h1 {
   line-height: 1.1;
   color: var(--text);
   margin-bottom: 12px;
+  text-wrap: balance;
 }
 
 h1 em {
@@ -113,6 +115,11 @@ input[type=range] {
   cursor: pointer;
   touch-action: manipulation;
 }
+input[type=range]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
 input[type=range]::-webkit-slider-thumb {
   appearance: none;
   width: 19px;
@@ -139,6 +146,7 @@ input[type=range]::-moz-range-thumb {
   font-weight: 500;
   color: var(--text);
   margin-top: 4px;
+  font-variant-numeric: tabular-nums;
 }
 
 .range-val small {
@@ -184,7 +192,10 @@ input[type=range]::-moz-range-thumb {
   gap: 6px;
   cursor: pointer;
   color: var(--text);
+  font-family: 'DM Sans', sans-serif;
   font-size: 11px;
+  letter-spacing: 0;
+  text-transform: none;
   margin-top: 4px;
   opacity: 0.85;
 }
@@ -298,9 +309,43 @@ input[type=range]::-moz-range-thumb {
   font-family: 'DM Serif Display', serif;
   font-size: 22px;
   margin-bottom: 16px;
+  position: relative;
+  display: inline-block;
 }
 .summary-card.sac .card-system { color: var(--sac); }
 .summary-card.price .card-system { color: var(--price); }
+
+.card-system[data-tip] {
+  cursor: help;
+  border-bottom: 1px dashed currentColor;
+  padding-bottom: 1px;
+}
+.card-system[data-tip]::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 0;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--muted);
+  width: 230px;
+  white-space: normal;
+  line-height: 1.5;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease-out;
+  z-index: 20;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+.card-system[data-tip]:hover::after,
+.card-system[data-tip]:focus-visible::after {
+  opacity: 1;
+}
 
 .card-metrics {
   display: grid;
@@ -318,6 +363,7 @@ input[type=range]::-moz-range-thumb {
   font-size: 14px;
   font-weight: 500;
   color: var(--text);
+  font-variant-numeric: tabular-nums;
 }
 .metric-val.big {
   font-size: 18px;
@@ -348,6 +394,7 @@ input[type=range]::-moz-range-thumb {
   font-family: 'DM Serif Display', serif;
   font-size: 18px;
   margin-bottom: 6px;
+  text-wrap: balance;
 }
 .section-desc {
   font-size: 12px;
@@ -412,7 +459,11 @@ canvas {
   font-family: 'DM Mono', monospace;
   font-size: 12px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background 0.2s, color 0.2s;
+}
+.tab-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 .tab-btn:hover { background: rgba(255,255,255,0.05); }
 .tab-btn.active {
@@ -465,6 +516,7 @@ td {
   font-family: 'DM Mono', monospace;
   color: var(--text);
   font-size: 12px;
+  font-variant-numeric: tabular-nums;
 }
 td:first-child {
   text-align: center;
@@ -804,6 +856,12 @@ td:first-child {
   gap: 8px;
   line-height: 1.5;
 }
+@media (max-width: 640px) {
+  .disclaimer-banner {
+    margin-top: 0;
+    margin-bottom: 24px;
+  }
+}
 .disclaimer-icon {
   color: var(--accent);
   flex-shrink: 0;
@@ -839,7 +897,7 @@ td:first-child {
   width: 100%;
   max-width: 420px;
   position: relative;
-  animation: slideUp 0.2s ease;
+  animation: slideUp 0.2s ease-out;
 }
 
 @keyframes slideUp {
