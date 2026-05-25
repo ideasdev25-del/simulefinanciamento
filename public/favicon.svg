@@ -1,12 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
   <!-- Background -->
   <rect width="32" height="32" rx="7" fill="#0d0f14"/>
-  <!-- House body -->
-  <rect x="8" y="17" width="16" height="11" rx="1.5" fill="#c8a96e"/>
-  <!-- Roof -->
-  <polygon points="16,6 27,17 5,17" fill="#c8a96e"/>
-  <!-- Door with $ sign -->
-  <rect x="13" y="20" width="6" height="8" rx="1" fill="#0d0f14"/>
-  <!-- $ symbol -->
-  <text x="16" y="27" font-family="Georgia, serif" font-size="7" font-weight="bold" fill="#c8a96e" text-anchor="middle">$</text>
+  <!-- Roof / teto -->
+  <polygon points="16,4 30,14 2,14" fill="#c8a96e"/>
+  <!-- $ grande centralizado abaixo do teto -->
+  <text x="16" y="29" font-family="Arial Black, Arial, sans-serif" font-size="17" font-weight="900" fill="#c8a96e" text-anchor="middle">$</text>
 </svg>
