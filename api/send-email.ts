@@ -73,7 +73,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           
           <div style="margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid #252a38;">
             <p style="font-size:11px;letter-spacing:3px;color:#c8a96e;text-transform:uppercase;margin:0 0 12px;">
-              CENÁRIO BRASIL · 2025
+              CENÁRIO BRASIL · 2026
             </p>
             <h1 style="font-size:28px;color:#e8e4dc;margin:0 0 8px;line-height:1.2;">
               Simulador de<br>
