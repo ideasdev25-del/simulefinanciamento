@@ -792,8 +792,14 @@ td:first-child {
 .faq-chevron.open { transform: rotate(90deg); }
 
 .faq-answer {
+  overflow: hidden;
+  max-height: 0;
+  padding: 0 24px;
+  transition: max-height 0.2s ease, padding 0.2s ease;
+}
+.faq-answer--open {
+  max-height: 400px;
   padding: 0 24px 18px;
-  animation: fadeIn 0.15s ease;
 }
 .faq-answer p {
   font-size: 13px;

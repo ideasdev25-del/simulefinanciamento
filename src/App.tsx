@@ -739,11 +739,9 @@ function FAQ() {
               <span>{faq.q}</span>
               <span className={`faq-chevron ${open === i ? 'open' : ''}`}>›</span>
             </button>
-            {open === i && (
-              <div className="faq-answer" role="region">
-                <p>{faq.a}</p>
-              </div>
-            )}
+            <div className={`faq-answer${open === i ? ' faq-answer--open' : ''}`} role="region" aria-hidden={open !== i}>
+              <p>{faq.a}</p>
+            </div>
           </div>
         ))}
       </div>
