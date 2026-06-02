@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sobre | Simule Financiamento</title>
+  <meta name="description" content="Conheça o Simule Financiamento — simulador gratuito de financiamento imobiliário no Brasil. Compare SAC e Price, calcule ITBI e custos de cartório." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://simulefinanciamento.app/sobre.html" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0d0f14;
+      --surface: #13161e;
+      --surface2: #1a1e2a;
+      --border: #252a38;
+      --accent: #c8a96e;
+      --accent2: #7eb8d4;
+      --sac: #6edac8;
+      --text: #e8e4dc;
+      --muted: #7a8099;
+      color-scheme: dark;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      line-height: 1.7;
+    }
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+    nav {
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    nav a {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent);
+      text-decoration: none;
+    }
+    nav a:hover { text-decoration: underline; }
+    .eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(28px, 5vw, 40px);
+      line-height: 1.15;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+    h1 em { font-style: italic; color: var(--accent); }
+    .lead {
+      font-size: 17px;
+      color: var(--muted);
+      margin-bottom: 48px;
+      line-height: 1.6;
+    }
+    h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px;
+      color: var(--text);
+      margin: 40px 0 12px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+    p { color: var(--text); font-size: 15px; margin-bottom: 16px; }
+    ul { padding-left: 20px; margin-bottom: 16px; }
+    li { color: var(--text); font-size: 15px; margin-bottom: 10px; }
+    li strong { color: var(--sac); }
+    a { color: var(--accent2); }
+    a:hover { color: var(--accent); }
+    .cta {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 14px 28px;
+      background: var(--accent);
+      color: #0d0f14;
+      font-weight: 600;
+      font-size: 15px;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .cta:hover { opacity: 0.85; color: #0d0f14; }
+    footer {
+      margin-top: 60px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav><a href="/">← Voltar ao Simulador</a></nav>
+
+    <p class="eyebrow">Sobre o projeto</p>
+    <h1>Simule <em>Financiamento</em></h1>
+    <p class="lead">
+      Simulador gratuito de financiamento imobiliário para quem está planejando comprar um imóvel no Brasil.
+      Sem cadastro, sem enrolação.
+    </p>
+
+    <h2>O que é o Simule Financiamento?</h2>
+    <p>
+      O <strong>Simule Financiamento</strong> é uma ferramenta online gratuita que ajuda compradores de imóveis
+      a entender o impacto financeiro de um financiamento antes de assinar qualquer contrato.
+    </p>
+    <p>
+      A ideia nasceu de uma frustração comum: os simuladores dos bancos são opacos, mostram apenas a parcela
+      e escondem o custo total. Aqui você vê tudo — parcelas mês a mês, juros totais, custos de formalização
+      e a comparação entre SAC e Price lado a lado.
+    </p>
+
+    <h2>O que o simulador calcula</h2>
+    <ul>
+      <li><strong>Parcelas SAC e Price</strong> — comparação completa dos dois sistemas de amortização</li>
+      <li><strong>Tabela de amortização</strong> — mês a mês, com amortização, juros, parcela e saldo devedor</li>
+      <li><strong>ITBI</strong> — imposto de transmissão, ajustável pela alíquota do seu município</li>
+      <li><strong>Custos de cartório</strong> — com desconto automático de 50% para primeiro imóvel pelo SFH</li>
+      <li><strong>Capital total necessário</strong> — entrada + todos os custos de formalização</li>
+      <li><strong>Gráficos comparativos</strong> — evolução de parcelas e saldo devedor ao longo do tempo</li>
+    </ul>
+
+    <h2>Gratuito e sem cadastro</h2>
+    <p>
+      Todos os cálculos acontecem diretamente no seu navegador. Não exigimos cadastro, não pedimos
+      CPF, não enviamos spam. Você pode usar a ferramenta quantas vezes quiser, para quantos cenários quiser.
+    </p>
+    <p>
+      A única situação em que pedimos seu e-mail é quando você solicita receber a tabela de amortização
+      completa em formato Excel — e mesmo assim ele é usado apenas para esse envio pontual.
+    </p>
+
+    <h2>Precisão dos cálculos</h2>
+    <p>
+      Os valores apresentados são estimativas baseadas nas fórmulas padrão do SAC e da Tabela Price
+      (também conhecida como Tabela Francesa). As taxas de ITBI e cartório são configuráveis porque
+      variam por município e estado.
+    </p>
+    <p>
+      Os cálculos não consideram correção monetária por TR (Taxa Referencial), seguros obrigatórios
+      (MIP e DFI) nem tarifas administrativas — itens que variam por banco e contrato. Para condições
+      definitivas, consulte sua instituição financeira.
+    </p>
+
+    <h2>Contato</h2>
+    <p>
+      Sugestões, erros ou dúvidas? Fale conosco:
+      <a href="mailto:contato@simulefinanciamento.app">contato@simulefinanciamento.app</a>
+    </p>
+
+    <a href="/" class="cta">Abrir o simulador →</a>
+
+    <footer>
+      <a href="/">Simule Financiamento</a> &nbsp;·&nbsp;
+      <a href="/sobre.html">Sobre</a> &nbsp;·&nbsp;
+      <a href="/privacidade.html">Privacidade</a>
+    </footer>
+  </div>
+</body>
+</html>

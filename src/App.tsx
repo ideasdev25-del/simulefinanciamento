@@ -828,6 +828,10 @@ function Footer() {
         SAC e Price &nbsp;&middot;&nbsp;
         Brasil 2026
       </p>
+      <p style={{ marginTop: '10px', fontSize: '13px' }}>
+        <a href="/sobre.html" style={{ color: 'var(--muted)', textDecoration: 'none', marginRight: '16px' }}>Sobre</a>
+        <a href="/privacidade.html" style={{ color: 'var(--muted)', textDecoration: 'none' }}>Política de Privacidade</a>
+      </p>
     </footer>
   );
 }
