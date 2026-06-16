@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ITBI: o que é e como calcular o imposto na compra do imóvel</title>
+  <meta name="description" content="Saiba o que é o ITBI, quanto custa (2% a 3%) e como calcular. Exemplo prático + simulador grátis do custo total do imóvel." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://simulefinanciamento.app/itbi" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta property="og:site_name" content="Simule Financiamento" />
+  <meta property="og:url" content="https://simulefinanciamento.app/itbi" />
+  <meta property="og:title" content="ITBI: o que é e como calcular o imposto na compra do imóvel" />
+  <meta property="og:description" content="Saiba o que é o ITBI, quanto custa (2% a 3%) e como calcular. Exemplo prático + simulador grátis do custo total do imóvel." />
+  <meta property="og:image" content="https://simulefinanciamento.app/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="ITBI: o que é e como calcular o imposto na compra do imóvel" />
+  <meta name="twitter:description" content="Saiba o que é o ITBI, quanto custa (2% a 3%) e como calcular. Exemplo prático + simulador grátis do custo total do imóvel." />
+  <meta name="twitter:image" content="https://simulefinanciamento.app/og-image.png" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Início", "item": "https://simulefinanciamento.app/" },
+          { "@type": "ListItem", "position": 2, "name": "ITBI", "item": "https://simulefinanciamento.app/itbi" }
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Quanto é o ITBI?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Em geral entre 2% e 3% do valor do imóvel, dependendo da cidade. Num imóvel de R$ 300 mil, isso significa de R$ 6.000 a R$ 9.000." }
+          },
+          {
+            "@type": "Question",
+            "name": "Quem paga o ITBI, comprador ou vendedor?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Por lei e por costume, quem paga é o comprador, já que é ele quem está recebendo a propriedade." }
+          },
+          {
+            "@type": "Question",
+            "name": "O ITBI pode ser financiado junto com o imóvel?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Em alguns bancos, sim. Mas você passa a pagar juros sobre o imposto, o que encarece bastante no longo prazo." }
+          },
+          {
+            "@type": "Question",
+            "name": "Tem isenção de ITBI?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Alguns programas habitacionais e a compra do primeiro imóvel pelo SFH podem ter redução em certas cidades. Consulte a prefeitura e o cartório local." }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-VRP12RMK8S"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-VRP12RMK8S');
+  </script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6407967503603486" crossorigin="anonymous"></script>
+
+  <style>
+    :root {
+      --bg: #0d0f14; --surface: #13161e; --surface2: #1a1e2a;
+      --border: #252a38; --accent: #c8a96e; --accent2: #7eb8d4;
+      --text: #e8e4dc; --muted: #7a8099;
+      color-scheme: dark;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; line-height: 1.75; }
+    .container { max-width: 760px; margin: 0 auto; padding: 48px 24px 80px; }
+    nav { margin-bottom: 32px; font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+    nav a { color: var(--accent); text-decoration: none; }
+    nav a:hover { text-decoration: underline; }
+    nav span { margin: 0 6px; }
+    .hero-img { width: 100%; height: auto; border-radius: 8px; margin-bottom: 32px; background: var(--surface2); display: block; }
+    h1 { font-family: 'DM Serif Display', serif; font-size: clamp(26px, 5vw, 40px); line-height: 1.2; color: var(--text); margin-bottom: 28px; }
+    h2 { font-family: 'DM Serif Display', serif; font-size: clamp(19px, 3vw, 24px); color: var(--text); margin: 48px 0 16px; padding-top: 12px; border-top: 1px solid var(--border); }
+    h3 { font-size: 17px; font-weight: 600; color: var(--accent); margin: 28px 0 10px; }
+    p { font-size: 15px; margin-bottom: 16px; }
+    ul, ol { padding-left: 22px; margin-bottom: 16px; }
+    li { font-size: 15px; margin-bottom: 8px; }
+    a { color: var(--accent2); text-decoration: none; }
+    a:hover { color: var(--accent); text-decoration: underline; }
+    strong { font-weight: 600; }
+    .table-wrap { overflow-x: auto; margin: 24px 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 320px; }
+    th { background: var(--surface); color: var(--accent); font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 12px 14px; text-align: left; border-bottom: 2px solid var(--border); }
+    td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    tr:nth-child(even) td { background: var(--surface); }
+    .cta-block { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 8px; padding: 24px 28px; margin: 40px 0; }
+    .cta-block p { margin-bottom: 16px; }
+    .cta-block p:last-child { margin-bottom: 0; }
+    .btn { display: inline-block; background: var(--accent); color: #0d0f14 !important; font-weight: 600; font-size: 14px; padding: 11px 24px; border-radius: 6px; text-decoration: none !important; transition: opacity 0.15s; }
+    .btn:hover { opacity: 0.85; }
+    .related { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px 24px; margin: 40px 0; }
+    .related-title { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+    .related ul { padding-left: 0; list-style: none; margin: 0; }
+    .related li { margin-bottom: 8px; font-size: 15px; }
+    .related li:last-child { margin-bottom: 0; }
+    .related li::before { content: '→ '; color: var(--accent); }
+    .faq { margin-top: 48px; }
+    .faq-item { padding: 20px 0; border-top: 1px solid var(--border); }
+    .faq-item:last-child { border-bottom: 1px solid var(--border); }
+    .faq-q { font-weight: 600; font-size: 15px; color: var(--text); margin-bottom: 8px; }
+    .faq-a { font-size: 15px; margin-bottom: 0; }
+    footer { margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--border); text-align: center; font-size: 13px; color: var(--muted); }
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <nav>
+      <a href="/">Simule Financiamento</a>
+      <span>›</span>
+      ITBI
+    </nav>
+
+    <img
+      src="/images/itbi.webp"
+      alt="Ilustração do ITBI com uma casa, um selo oficial de transferência e um prédio público representando a prefeitura."
+      width="1216" height="832"
+      loading="lazy"
+      class="hero-img"
+    />
+
+    <h1>ITBI: o que é e como calcular o imposto na compra do imóvel</h1>
+
+    <p>Você juntou a entrada, aprovou o financiamento e achou que o dinheiro estava no ponto. Aí aparece o <strong>ITBI</strong> — um imposto que pega muita gente de surpresa e pode custar <strong>milhares de reais</strong> logo na largada. Vamos entender o que é e quanto você vai precisar separar.</p>
+
+    <h2>O que é o ITBI</h2>
+    <p>ITBI é a sigla de <strong>Imposto sobre a Transmissão de Bens Imóveis</strong>. É um imposto <strong>municipal</strong>: quem cobra é a prefeitura da cidade onde fica o imóvel.</p>
+    <p>A ideia é simples: toda vez que um imóvel <strong>muda de dono</strong>, o município cobra uma taxa por essa transferência. É parecido com o que acontece quando você passa um carro usado pro seu nome no Detran — existe uma taxa de transferência. O ITBI é essa "taxa de transferência", só que do imóvel e para a prefeitura.</p>
+    <p>E tem um detalhe que torna ele inevitável: <strong>sem pagar o ITBI, o cartório não registra o imóvel no seu nome.</strong> Ou seja, juridicamente, você ainda não é o dono até quitar esse imposto.</p>
+
+    <h2>Quanto custa o ITBI</h2>
+    <p>A alíquota varia de cidade para cidade, mas costuma ficar entre <strong>2% e 3%</strong> do valor do imóvel. Cada prefeitura define a sua.</p>
+    <p>Outro ponto importante: o imposto incide sobre o <strong>maior valor</strong> entre o preço de venda e o "valor venal de referência" que a prefeitura atribui ao imóvel. Na prática, na maioria dos casos, é sobre o valor da compra.</p>
+
+    <h3>Exemplo prático</h3>
+    <p>No nosso caso de um imóvel de <strong>R$ 300.000</strong>:</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Alíquota da cidade</th><th>ITBI a pagar</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>2%</td><td>R$ 6.000</td></tr>
+          <tr><td>3%</td><td>R$ 9.000</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>Não é troco. Esse valor entra no bolo de dinheiro que você precisa ter <strong>à vista</strong> no momento da compra — junto com a entrada e o cartório.</p>
+
+    <h2>Quando e como pagar</h2>
+    <p>O ITBI é pago <strong>antes do registro</strong>, geralmente logo após assinar o contrato de compra. O passo a passo costuma ser:</p>
+    <ol>
+      <li>Você (ou o cartório) emite a guia do ITBI no site da prefeitura.</li>
+      <li>Paga a guia.</li>
+      <li>Leva o comprovante ao cartório de registro de imóveis.</li>
+      <li>Só então o imóvel é registrado no seu nome.</li>
+    </ol>
+    <p>Algumas prefeituras permitem parcelar, mas a regra geral é pagamento à vista.</p>
+
+    <h2>Dá para financiar o ITBI?</h2>
+    <p>Em alguns casos sim. Certos bancos permitem incluir custos como ITBI e cartório dentro do valor financiado (em vez de pagar do bolso). Parece ótimo para quem está sem fôlego de caixa, <strong>mas atenção</strong>: ao financiar o imposto, você passa a pagar juros sobre ele por anos. Um ITBI de R$ 9.000 financiado pode custar bem mais no fim. Use com cuidado.</p>
+
+    <div class="cta-block">
+      <p><strong>Não deixe o ITBI estourar seu planejamento.</strong> Calcule de uma vez todo o dinheiro que você precisa ter no dia da compra — entrada, ITBI e cartório juntos.</p>
+      <a href="/" class="btn">Calcular o custo total da compra →</a>
+    </div>
+
+    <div class="related">
+      <p class="related-title">Leia também</p>
+      <ul>
+        <li><a href="/custos-de-cartorio">Custos de cartório na compra do imóvel: escritura e registro</a></li>
+        <li><a href="/custo-total-comprar-imovel">Custo total para comprar um imóvel: além do preço</a></li>
+      </ul>
+    </div>
+
+    <section class="faq" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Perguntas frequentes</h2>
+
+      <div class="faq-item">
+        <p class="faq-q">Quanto é o ITBI?</p>
+        <p class="faq-a">Em geral entre 2% e 3% do valor do imóvel, dependendo da cidade. Num imóvel de R$ 300 mil, isso significa de R$ 6.000 a R$ 9.000.</p>
+      </div>
+      <div class="faq-item">
+        <p class="faq-q">Quem paga o ITBI, comprador ou vendedor?</p>
+        <p class="faq-a">Por lei e por costume, quem paga é o <strong>comprador</strong>, já que é ele quem está recebendo a propriedade.</p>
+      </div>
+      <div class="faq-item">
+        <p class="faq-q">O ITBI pode ser financiado junto com o imóvel?</p>
+        <p class="faq-a">Em alguns bancos, sim. Mas você passa a pagar juros sobre o imposto, o que encarece bastante no longo prazo.</p>
+      </div>
+      <div class="faq-item">
+        <p class="faq-q">Tem isenção de ITBI?</p>
+        <p class="faq-a">Alguns programas habitacionais e a compra do primeiro imóvel pelo SFH podem ter redução em certas cidades. Consulte a prefeitura e o cartório local.</p>
+      </div>
+    </section>
+
+    <footer>
+      <a href="/">Simule Financiamento</a> &nbsp;·&nbsp;
+      <a href="/sobre">Sobre</a> &nbsp;·&nbsp;
+      <a href="/privacidade">Privacidade</a>
+    </footer>
+
+  </div>
+</body>
+</html>

@@ -826,9 +826,24 @@ function Footer() {
         SAC e Price &nbsp;&middot;&nbsp;
         Brasil 2026
       </p>
-      <p style={{ marginTop: '10px', fontSize: '13px' }}>
-        <a href="/sobre.html" style={{ color: 'var(--muted)', textDecoration: 'none', marginRight: '16px' }}>Sobre</a>
-        <a href="/privacidade.html" style={{ color: 'var(--muted)', textDecoration: 'none' }}>Política de Privacidade</a>
+      <nav aria-label="Guias de financiamento" style={{ marginTop: '24px', marginBottom: '16px' }}>
+        <p style={{ fontSize: '11px', fontFamily: 'var(--font-mono, monospace)', letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '12px' }}>
+          Aprenda sobre financiamento
+        </p>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px 20px', justifyContent: 'center', fontSize: '13px' }}>
+          <a href="/sac-ou-price" style={{ color: 'var(--muted)', textDecoration: 'none' }}>SAC ou Price</a>
+          <a href="/quanto-preciso-ganhar" style={{ color: 'var(--muted)', textDecoration: 'none' }}>Renda mínima</a>
+          <a href="/entrada-financiamento" style={{ color: 'var(--muted)', textDecoration: 'none' }}>Entrada</a>
+          <a href="/fgts-financiamento" style={{ color: 'var(--muted)', textDecoration: 'none' }}>FGTS</a>
+          <a href="/itbi" style={{ color: 'var(--muted)', textDecoration: 'none' }}>ITBI</a>
+          <a href="/custos-de-cartorio" style={{ color: 'var(--muted)', textDecoration: 'none' }}>Custos de cartório</a>
+          <a href="/custo-total-comprar-imovel" style={{ color: 'var(--muted)', textDecoration: 'none' }}>Custo total</a>
+          <a href="/amortizar-financiamento" style={{ color: 'var(--muted)', textDecoration: 'none' }}>Amortização</a>
+        </div>
+      </nav>
+      <p style={{ marginTop: '16px', fontSize: '13px' }}>
+        <a href="/sobre" style={{ color: 'var(--muted)', textDecoration: 'none', marginRight: '16px' }}>Sobre</a>
+        <a href="/privacidade" style={{ color: 'var(--muted)', textDecoration: 'none' }}>Política de Privacidade</a>
       </p>
     </footer>
   );
