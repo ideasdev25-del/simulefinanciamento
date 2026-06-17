@@ -699,14 +699,16 @@ function Explainer() {
 }
 
 function FAQ() {
-  const faqs = [
+  const faqs: { q: string; a: string; saibaMais?: string }[] = [
     {
       q: 'Qual a diferença entre SAC e Price no financiamento imobiliário?',
       a: 'No SAC, a amortização mensal é constante e as parcelas decrescem ao longo do tempo. Na Tabela Price, a parcela é fixa, mas no início a maior parte é composta por juros. O SAC resulta em menor custo total; o Price facilita o planejamento por ter parcela fixa.',
+      saibaMais: '/sac-ou-price',
     },
     {
       q: 'Qual sistema de amortização é melhor: SAC ou Price?',
       a: 'O SAC é melhor para quem pode pagar parcela inicial mais alta e quer economizar juros no longo prazo. O Price é indicado para quem precisa de parcela menor no início ou prefere previsibilidade. Nosso simulador mostra exatamente quanto você economiza escolhendo o SAC.',
+      saibaMais: '/sac-ou-price',
     },
     {
       q: 'Como calcular o financiamento imobiliário no Brasil em 2026?',
@@ -715,10 +717,12 @@ function FAQ() {
     {
       q: 'Quanto devo dar de entrada num financiamento imobiliário?',
       a: 'O mínimo geralmente é de 20% para financiamento pelo SFH. Quanto maior a entrada, menor o saldo financiado, menores as parcelas e menos juros pagos no total. Use o slider de entrada no simulador para comparar cenários.',
+      saibaMais: '/entrada-financiamento',
     },
     {
       q: 'Quais os custos extras além da entrada (ITBI, Cartório, etc)?',
-      a: 'Além da entrada, reserve os chamados Custos de Formalização (de 4% a 6% do valor do imóvel). Isso inclui o ITBI (Imposto de Transmissão, em média 2% a 3% cobrado pela prefeitura), a taxa de registro no Cartório (RGI, padrão de 1% a 2%) e a Taxa de Avaliação Bancária. Atenção: Se for a compra do seu primeiro imóvel financiado pelo SFH/MCMV, a lei federal concede 50% de desconto nas taxas de registro de cartório!',
+      a: 'Além da entrada, reserve os chamados Custos de Formalização (cerca de 5% do valor do imóvel). Isso inclui o ITBI (em média 2% a 3% cobrado pela prefeitura), a taxa de registro no Cartório (RGI, padrão de 1% a 2%) e a Taxa de Avaliação Bancária (de R$ 800 a R$ 2.000, podendo ser mais em imóveis de alto valor). Quem compra o primeiro imóvel financiado pelo SFH/MCMV tem 50% de desconto nas taxas de cartório.',
+      saibaMais: '/custo-total-comprar-imovel',
     },
   ];
 
@@ -740,7 +744,7 @@ function FAQ() {
               <span className={`faq-chevron ${open === i ? 'open' : ''}`}>›</span>
             </button>
             <div className={`faq-answer${open === i ? ' faq-answer--open' : ''}`} role="region" aria-hidden={open !== i}>
-              <p>{faq.a}</p>
+              <p>{faq.a}{faq.saibaMais && <>{' '}<a href={faq.saibaMais} style={{ color: 'var(--accent)' }}>Saiba mais →</a></>}</p>
             </div>
           </div>
         ))}
@@ -761,57 +765,47 @@ function DisclaimerBanner() {
 function ContentSection() {
   return (
     <section className="content-section" aria-labelledby="guia-heading">
-      <h2 id="guia-heading">Como calcular o capital total necessário para comprar um imóvel</h2>
+      <h2 id="guia-heading">Guia rápido de financiamento imobiliário</h2>
+
       <p>
-        Muitos compradores focam apenas na parcela mensal e esquecem que, antes de assinar o contrato,
-        é preciso ter em caixa um valor significativamente maior do que a entrada. Além do valor da entrada
-        — geralmente mínimo de 20% pelo SFH — existem custos obrigatórios de formalização que podem
-        representar de 4% a 6% do valor do imóvel. O simulador acima calcula tudo isso na seção
-        "Custos de Formalização", mas vale entender cada item.
+        Além da entrada, reserve cerca de 5% do valor do imóvel para custos de formalização: ITBI,
+        registro em cartório e avaliação bancária. O simulador calcula tudo na seção "Custos de Formalização".{' '}
+        <a href="/custo-total-comprar-imovel">Veja todos os custos da compra →</a>
       </p>
 
       <h3>O que é ITBI e quanto custa</h3>
       <p>
-        O ITBI (Imposto de Transmissão de Bens Imóveis) é um tributo municipal cobrado toda vez que
-        um imóvel muda de proprietário. A alíquota varia por cidade: em São Paulo é 3%, no Rio de Janeiro
-        2%, em Curitiba e Porto Alegre 2,7%. Para um imóvel de R&nbsp;500.000, o ITBI pode custar entre
-        R&nbsp;10.000 e R&nbsp;15.000 — dinheiro que precisa sair do bolso à vista, separado da entrada.
-        Use o slider de ITBI no simulador para ajustar à alíquota do seu município.
+        O ITBI é um imposto municipal cobrado quando o imóvel muda de dono — em geral 2% a 3% do
+        valor, pago à vista. Ajuste a alíquota da sua cidade no slider do simulador.{' '}
+        <a href="/itbi">Entenda e calcule o ITBI →</a>
       </p>
 
       <h3>Custos de cartório e registro de imóveis</h3>
       <p>
-        O Registro Geral de Imóveis (RGI) é o passo que transfere legalmente o imóvel para seu nome.
-        Os emolumentos (taxas do cartório) seguem tabelas estaduais e costumam ficar entre 1% e 2%
-        do valor do imóvel. Quem compra o <strong>primeiro imóvel pelo SFH ou MCMV</strong> tem direito
-        a 50% de desconto nessas taxas — o simulador aplica esse desconto automaticamente quando você
-        marca a opção "Primeiro imóvel".
+        O registro (RGI) transfere o imóvel para o seu nome e custa cerca de 1% a 2% do valor —
+        com 50% de desconto no primeiro imóvel pelo SFH/MCMV.{' '}
+        <a href="/custos-de-cartorio">Veja os custos de cartório →</a>
       </p>
 
       <h3>Taxa de avaliação bancária</h3>
       <p>
-        O banco contrata um engenheiro ou arquiteto para avaliar o imóvel antes de liberar o crédito.
-        Esse laudo custa tipicamente entre R&nbsp;1.500 e R&nbsp;5.000 dependendo da instituição e do
-        valor do bem. Caixa Econômica Federal, Bradesco e Itaú cobram valores diferentes — vale
-        perguntar antes de escolher o banco.
+        Antes de liberar o crédito, o banco contrata um laudo de avaliação do imóvel, que costuma
+        custar de R$&nbsp;800 a R$&nbsp;2.000 (podendo ser mais em imóveis de alto valor).{' '}
+        <a href="/custo-total-comprar-imovel">Entenda os custos da compra →</a>
       </p>
 
       <h3>Capital total inicial: a conta completa</h3>
       <p>
-        Some entrada + ITBI + cartório + avaliação e você tem o <strong>capital total inicial</strong>
-        que precisa ter disponível no dia da assinatura. Para um imóvel de R&nbsp;500.000 com 20% de
-        entrada, esse valor costuma ficar entre R&nbsp;130.000 e R&nbsp;145.000 — cerca de 26% a 29%
-        do valor do imóvel, não apenas os 20% de entrada. O simulador mostra esse número em tempo real
-        conforme você ajusta os parâmetros.
+        Some entrada + ITBI + cartório + avaliação: o dinheiro que você precisa ter no dia da
+        assinatura costuma ser bem maior que só a entrada. O simulador mostra esse número em tempo real.{' '}
+        <a href="/custo-total-comprar-imovel">Calcule o capital total →</a>
       </p>
 
       <h3>SAC ou Price: qual impacta mais o seu orçamento?</h3>
       <p>
-        Depois de garantir o capital inicial, a escolha entre SAC e Price define o impacto mensal no
-        seu orçamento pelos próximos 20 a 35 anos. No SAC, a primeira parcela é maior mas o total
-        pago é sempre menor. Na Tabela Price, a parcela inicial é menor — o que facilita a aprovação
-        do crédito pela regra de comprometimento de renda — mas o custo total é significativamente
-        superior. Use os cartões de comparação acima para ver a diferença exata para o seu cenário.
+        No SAC a parcela começa maior, mas o total pago é menor; na Price a parcela é fixa e menor
+        no início, o que facilita a aprovação do crédito.{' '}
+        <a href="/sac-ou-price">Compare SAC e Price com exemplos →</a>
       </p>
     </section>
   );
